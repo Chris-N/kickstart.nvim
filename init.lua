@@ -39,14 +39,14 @@ require('lazy').setup({
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
 
   -- Toggle Terminal Plugin
-  -- amongst your other plugins
-  -- { 'akinsho/toggleterm.nvim', version = '*', config = true },
+  -- { 'akinsho/toggleterm.nvim', version = '*', config = true } -- Default keys,
   -- or
   {
     'akinsho/toggleterm.nvim',
     version = '*',
     opts = {
       open_mapping = '<C-\\>' --[[ things you want to change go here]],
+      -- shell = 'zsh',
     },
   },
 
@@ -446,8 +446,7 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {},
-        --
+        ts_ls = {},
 
         lua_ls = {
           -- cmd = { ... },
