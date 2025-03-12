@@ -494,6 +494,8 @@ require('lazy').setup({
             require('lspconfig')[server_name].setup(server)
           end,
         },
+        ensure_installed = ensure_installed,
+        automatic_installation = true,
       }
     end,
   },
