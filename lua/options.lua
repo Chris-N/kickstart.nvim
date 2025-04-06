@@ -63,3 +63,13 @@ vim.opt.scrolloff = 5
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+
+-- ADDED by me to enable comments of html within react files
+vim.opt_local.comments = {
+  -- Use /* */ for JSX/TSX comments
+  ft = { 'jsx', 'tsx' },
+  style = {
+    [1] = '/*',
+    [2] = '*/',
+  },
+}
