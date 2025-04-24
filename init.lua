@@ -752,6 +752,42 @@ require('lazy').setup({
       require('nvim-ts-autotag').setup()
     end,
   },
+  {
+    'nvimtools/none-ls.nvim',
+    dependencies = { 'nvim-lua/plenary.nvim', 'nvimtools/none-ls-extras.nvim' },
+    config = function()
+      local null_ls = require 'null-ls'
+
+      null_ls.setup {
+        sources = {
+          -- For formatting:
+          null_ls.builtins.formatting.prettier.with {
+            extra_args = { '--config', vim.fn.expand '~/.prettierrc' },
+          },
+
+          -- For diagnostics:
+          -- Attempt at using eslint_d over eslint, only use one
+          --
+          -- null_ls.builtins.diagnostics.eslint_d.with {
+          --   condition = function(utils)
+          --     return utils.root_has_file { '.eslintrc.js', '.eslintrc.cjs', 'eslint.config.mjs' }
+          --   end,
+          -- },
+          null_ls.builtins.completion.spell,
+          require 'none-ls.diagnostics.eslint', -- requires none-ls-extras.nvim
+        },
+        on_attach = function(client, bufnr)
+          -- Format on save
+          vim.api.nvim_create_autocmd('BufWritePre', {
+            buffer = bufnr,
+            callback = function()
+              vim.lsp.buf.format { async = false }
+            end,
+          })
+        end,
+      }
+    end,
+  },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
