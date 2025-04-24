@@ -32,3 +32,15 @@ vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left wind
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+
+-- Configuration files
+vim.keymap.set('n', '<leader>bb', ':vsplit ~/.bashrc<CR>', { desc = 'Bashrc config' })
+vim.keymap.set('n', '<leader>bn', ':vsplit $MYVIMRC<CR>', { desc = 'Nvim config' })
+
+-- Run ESLint and refresh file
+vim.keymap.set('n', '<leader>ef', ':!npx eslint % --fix --no-warn-ignored<CR>:e!<CR>', { desc = '[E]slint [F]ix file', noremap = true })
+vim.keymap.set('n', '<leader>ec', ':!npx eslint % --no-warn-ignored<CR>:e!<CR>', { desc = '[E]slint [C]heck file' })
+vim.keymap.set('n', '<leader>ep', ':!npx eslint . --no-warn-ignored<CR>:e!<CR>', { desc = '[E]slint current [P]roject' })
+
+-- Run Prettier & refresh file
+vim.keymap.set('n', '<leader>p', ':!npx prettier % --write<CR>:e!<CR>', { desc = '[P]rettier current file' })
