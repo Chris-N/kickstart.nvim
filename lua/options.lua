@@ -73,3 +73,5 @@ vim.opt_local.comments = {
     [2] = '*/',
   },
 }
+
+vim.opt.spell = false

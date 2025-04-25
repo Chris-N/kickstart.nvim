@@ -733,7 +733,6 @@ require('lazy').setup({
         --  the list of additional_vim_regex_highlighting and disabled languages for indent.
         additional_vim_regex_highlighting = { 'ruby' },
       },
-      autotag = { enable = true, 'tsx', 'html' },
       indent = { enable = true, disable = { 'ruby' } },
     },
     -- There are additional nvim-treesitter modules that you can use to interact
@@ -747,11 +746,12 @@ require('lazy').setup({
   {
     'windwp/nvim-ts-autotag',
     event = 'InsertEnter',
-    opts = {},
+    opts = { enable = true },
     config = function()
       require('nvim-ts-autotag').setup()
     end,
   },
+  -- Real-time eslinting
   {
     'nvimtools/none-ls.nvim',
     dependencies = { 'nvim-lua/plenary.nvim', 'nvimtools/none-ls-extras.nvim' },
