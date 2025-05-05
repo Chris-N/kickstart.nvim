@@ -11,3 +11,8 @@ vim.api.nvim_create_autocmd('TextYankPost', {
     vim.highlight.on_yank()
   end,
 })
+
+-- User command: Need to fix project name to auto-detect csproj file
+vim.api.nvim_create_user_command('DotnetRun', function()
+  vim.cmd '!dotnet run --project testapi'
+end, {})

@@ -44,3 +44,17 @@ vim.keymap.set('n', '<leader>ep', ':!npx eslint . --no-warn-ignored<CR>:e!<CR>',
 
 -- Run Prettier & refresh file
 vim.keymap.set('n', '<leader>p', ':!npx prettier % --write<CR>:e!<CR>', { desc = '[P]rettier current file' })
+
+-- .NET Core Debug Keys
+vim.keymap.set('n', '<F5>', function()
+  require('dap').continue()
+end, { desc = 'Start/Continue Debugging' })
+vim.keymap.set('n', '<F9>', function()
+  require('dap').toggle_breakpoint()
+end, { desc = 'Toggle Breakpoint' })
+vim.keymap.set('n', '<F10>', function()
+  require('dap').step_over()
+end, { desc = 'Step Over' })
+vim.keymap.set('n', '<F11>', function()
+  require('dap').step_into()
+end, { desc = 'Step Into' })

@@ -46,8 +46,40 @@ require('lazy').setup({
     version = '*',
     opts = {
       open_mapping = '<C-\\>' --[[ things you want to change go here]],
+      -- Add new settings for .NET
+      direction = 'float', -- Optional: Set default terminal to float
+      hide_numbers = true, -- Optional: Hide line numbers in terminal
+      shade_terminals = true, -- Optional: Reduce glare
+      -- Shell configuration (uncomment/modify if needed)
       -- shell = 'zsh',
     },
+    config = function(_, opts)
+      require('toggleterm').setup(opts)
+      -- Keymap to launch .NET API in a terminal
+      vim.keymap.set('n', '<leader>mt', function()
+        local Terminal = require('toggleterm.terminal').Terminal
+        local dotnet_run = Terminal:new {
+          --cmd = 'dotnet run --project testapi', -- Your project path, hardcode
+          cmd = 'dotnet run --project ' .. vim.fn.findfile('*.csproj', vim.fn.getcwd() .. ';'), -- Your project path, auto-detect
+          dir = vim.fn.getcwd(), -- Run in current working directory
+          hidden = true, -- Hide on exit
+          direction = 'float', -- Override default if needed
+          on_exit = function(term, job_id, exit_code)
+            if exit_code == 0 then
+              vim.notify('.NET server stopped gracefully', vim.log.levels.INFO)
+            else
+              vim.notify('.NET server crashed (Exit Code: ' .. exit_code .. ')', vim.log.levels.ERROR)
+            end
+          end,
+        }
+        -- OPTIONAL: to watch dotnet run
+        -- vim.keymap.set('n', '<leader>mw', function()
+        --   local dotnet_watch = Terminal:new { cmd = 'dotnet watch run --project testapi' }
+        --   dotnet_watch:toggle()
+        -- end, { desc = 'Watch .NET API' })
+        dotnet_run:toggle()
+      end, { desc = 'Run .NET API' })
+    end,
   },
 
   require 'kickstart/plugins/neo-tree',
@@ -136,7 +168,10 @@ require('lazy').setup({
       -- Document existing key chains
       spec = {
         { '<leader>c', group = '[C]ode', mode = { 'n', 'x' } },
+        { '<leader>b', group = '[B]ash configs' },
         { '<leader>d', group = '[D]ocument' },
+        { '<leader>e', group = '[E]slint & formatters' },
+        { '<leader>m', group = '[M]icrosoft .NET Core' },
         { '<leader>r', group = '[R]ename' },
         { '<leader>s', group = '[S]earch' },
         { '<leader>w', group = '[W]orkspace' },
@@ -408,6 +443,39 @@ require('lazy').setup({
           end
         end,
       })
+
+      -- .NET Core Debugger setup
+      local dap = require 'dap'
+      dap.adapters.coreclr = {
+        type = 'executable',
+        command = vim.fn.stdpath 'data' .. '/mason/bin/netcoredbg',
+        args = { '--interpreter=vscode' },
+      }
+
+      -- Helper function
+      local function find_dll_path()
+        local csproj_path = vim.fn.glob(vim.fn.getcwd() .. '/*.csproj')
+        if csproj_path == '' then
+          return nil
+        end
+        local project_name = vim.fn.fnamemodify(csproj_path, ':t:r')
+        local dll_path = vim.fn.glob(vim.fn.getcwd() .. '/bin/Debug/**/' .. project_name .. '.dll')
+        return dll_path or vim.fn.input('Path to DLL: ', vim.fn.getcwd() .. '/bin/Debug/**/*.dll', 'file')
+      end
+
+      dap.configurations.cs = {
+        {
+          type = 'coreclr',
+          name = 'launch - netcoredbg',
+          request = 'launch',
+          -- program = find_dll_path, -- Debug right away
+          program = function()
+            vim.cmd '!dotnet build' -- Force rebuild
+            return find_dll_path()
+          end, -- Auto-build before Debugging
+          cwd = '${workspaceFolder}',
+        },
+      }
 
       -- Change diagnostic symbols in the sign column (gutter)
       -- if vim.g.have_nerd_font then
