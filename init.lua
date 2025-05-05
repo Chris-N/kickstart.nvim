@@ -47,7 +47,7 @@ require('lazy').setup({
     opts = {
       open_mapping = '<C-\\>' --[[ things you want to change go here]],
       -- Add new settings for .NET
-      direction = 'float', -- Optional: Set default terminal to float
+      -- direction = 'float', -- Optional: Set default terminal to float
       hide_numbers = true, -- Optional: Hide line numbers in terminal
       shade_terminals = true, -- Optional: Reduce glare
       -- Shell configuration (uncomment/modify if needed)
@@ -444,39 +444,6 @@ require('lazy').setup({
         end,
       })
 
-      -- .NET Core Debugger setup
-      local dap = require 'dap'
-      dap.adapters.coreclr = {
-        type = 'executable',
-        command = vim.fn.stdpath 'data' .. '/mason/bin/netcoredbg',
-        args = { '--interpreter=vscode' },
-      }
-
-      -- Helper function
-      local function find_dll_path()
-        local csproj_path = vim.fn.glob(vim.fn.getcwd() .. '/*.csproj')
-        if csproj_path == '' then
-          return nil
-        end
-        local project_name = vim.fn.fnamemodify(csproj_path, ':t:r')
-        local dll_path = vim.fn.glob(vim.fn.getcwd() .. '/bin/Debug/**/' .. project_name .. '.dll')
-        return dll_path or vim.fn.input('Path to DLL: ', vim.fn.getcwd() .. '/bin/Debug/**/*.dll', 'file')
-      end
-
-      dap.configurations.cs = {
-        {
-          type = 'coreclr',
-          name = 'launch - netcoredbg',
-          request = 'launch',
-          -- program = find_dll_path, -- Debug right away
-          program = function()
-            vim.cmd '!dotnet build' -- Force rebuild
-            return find_dll_path()
-          end, -- Auto-build before Debugging
-          cwd = '${workspaceFolder}',
-        },
-      }
-
       -- Change diagnostic symbols in the sign column (gutter)
       -- if vim.g.have_nerd_font then
       --   local signs = { ERROR = '', WARN = '', INFO = '', HINT = '' }
@@ -564,6 +531,43 @@ require('lazy').setup({
         },
         ensure_installed = ensure_installed,
         automatic_installation = true,
+      }
+    end,
+  },
+  {
+    'mfussenegger/nvim-dap', -- Core DAP plugin
+    config = function()
+      -- .NET Core Debugger setup
+      local dap = require 'dap'
+      dap.adapters.coreclr = {
+        type = 'executable',
+        command = vim.fn.stdpath 'data' .. '/mason/bin/netcoredbg',
+        args = { '--interpreter=vscode' },
+      }
+
+      -- Helper function
+      local function find_dll_path()
+        local csproj_path = vim.fn.glob(vim.fn.getcwd() .. '/*.csproj')
+        if csproj_path == '' then
+          return nil
+        end
+        local project_name = vim.fn.fnamemodify(csproj_path, ':t:r')
+        local dll_path = vim.fn.glob(vim.fn.getcwd() .. '/bin/Debug/**/' .. project_name .. '.dll')
+        return dll_path or vim.fn.input('Path to DLL: ', vim.fn.getcwd() .. '/bin/Debug/**/*.dll', 'file')
+      end
+
+      dap.configurations.cs = {
+        {
+          type = 'coreclr',
+          name = 'launch - netcoredbg',
+          request = 'launch',
+          -- program = find_dll_path, -- Debug right away
+          program = function()
+            vim.cmd '!dotnet build' -- Force rebuild
+            return find_dll_path()
+          end, -- Auto-build before Debugging
+          cwd = '${workspaceFolder}',
+        },
       }
     end,
   },
