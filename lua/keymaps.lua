@@ -38,7 +38,8 @@ vim.keymap.set('n', '<leader>bb', ':vsplit ~/.bashrc<CR>', { desc = 'Bashrc conf
 vim.keymap.set('n', '<leader>bn', ':vsplit $MYVIMRC<CR>', { desc = 'Nvim config' })
 
 -- Run ESLint and refresh file
-vim.keymap.set('n', '<leader>ef', ':!npx eslint % --fix --no-warn-ignored<CR>:e!<CR>', { desc = '[E]slint [F]ix file', noremap = true })
+vim.keymap.set('n', '<leader>ef', ':!npx eslint % --fix --no-warn-ignored<CR>:e!<CR>',
+  { desc = '[E]slint [F]ix file', noremap = true })
 vim.keymap.set('n', '<leader>ec', ':!npx eslint % --no-warn-ignored<CR>:e!<CR>', { desc = '[E]slint [C]heck file' })
 vim.keymap.set('n', '<leader>ep', ':!npx eslint . --no-warn-ignored<CR>:e!<CR>', { desc = '[E]slint current [P]roject' })
 
@@ -58,3 +59,37 @@ end, { desc = 'Step Over' })
 vim.keymap.set('n', '<F11>', function()
   require('dap').step_into()
 end, { desc = 'Step Into' })
+vim.keymap.set('n', '<F12>', function()
+  require('dap').step_out()
+end, { desc = 'Step Out' })
+
+-- TODO: Need to review keymaps default settings for DAP mappings
+vim.keymap.set('n', '<Leader>b', function()
+  require('dap').toggle_breakpoint()
+end)
+vim.keymap.set('n', '<Leader>B', function()
+  require('dap').set_breakpoint()
+end)
+vim.keymap.set('n', '<Leader>lp', function()
+  require('dap').set_breakpoint(nil, nil, vim.fn.input 'Log point message: ')
+end)
+vim.keymap.set('n', '<Leader>dr', function()
+  require('dap').repl.open()
+end)
+vim.keymap.set('n', '<Leader>dl', function()
+  require('dap').run_last()
+end)
+vim.keymap.set({ 'n', 'v' }, '<Leader>dh', function()
+  require('dap.ui.widgets').hover()
+end)
+vim.keymap.set({ 'n', 'v' }, '<Leader>dp', function()
+  require('dap.ui.widgets').preview()
+end)
+vim.keymap.set('n', '<Leader>df', function()
+  local widgets = require 'dap.ui.widgets'
+  widgets.centered_float(widgets.frames)
+end)
+vim.keymap.set('n', '<Leader>ds', function()
+  local widgets = require 'dap.ui.widgets'
+  widgets.centered_float(widgets.scopes)
+end)
