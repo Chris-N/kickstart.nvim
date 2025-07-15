@@ -38,8 +38,7 @@ vim.keymap.set('n', '<leader>bb', ':vsplit ~/.bashrc<CR>', { desc = 'Bashrc conf
 vim.keymap.set('n', '<leader>bn', ':vsplit $MYVIMRC<CR>', { desc = 'Nvim config' })
 
 -- Run ESLint and refresh file
-vim.keymap.set('n', '<leader>ef', ':!npx eslint % --fix --no-warn-ignored<CR>:e!<CR>',
-  { desc = '[E]slint [F]ix file', noremap = true })
+vim.keymap.set('n', '<leader>ef', ':!npx eslint % --fix --no-warn-ignored<CR>:e!<CR>', { desc = '[E]slint [F]ix file', noremap = true })
 vim.keymap.set('n', '<leader>ec', ':!npx eslint % --no-warn-ignored<CR>:e!<CR>', { desc = '[E]slint [C]heck file' })
 vim.keymap.set('n', '<leader>ep', ':!npx eslint . --no-warn-ignored<CR>:e!<CR>', { desc = '[E]slint current [P]roject' })
 
@@ -92,4 +91,12 @@ end)
 vim.keymap.set('n', '<Leader>ds', function()
   local widgets = require 'dap.ui.widgets'
   widgets.centered_float(widgets.scopes)
+end)
+
+-- Python specific debug
+vim.keymap.set('n', '<leader>dm', function()
+  require('dap-python').test_method()
+end)
+vim.keymap.set('n', '<leader>dc', function()
+  require('dap-python').test_class()
 end)

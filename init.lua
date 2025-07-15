@@ -48,7 +48,7 @@ require('lazy').setup({
       open_mapping = '<C-\\>' --[[ things you want to change go here]],
       -- Add new settings for .NET
       -- direction = 'float', -- Optional: Set default terminal to float
-      hide_numbers = true,    -- Optional: Hide line numbers in terminal
+      hide_numbers = true, -- Optional: Hide line numbers in terminal
       shade_terminals = true, -- Optional: Reduce glare
       -- Shell configuration (uncomment/modify if needed)
       -- shell = 'zsh',
@@ -61,9 +61,9 @@ require('lazy').setup({
         local dotnet_run = Terminal:new {
           --cmd = 'dotnet run --project testapi', -- Your project path, hardcode
           cmd = 'dotnet run --project ' .. vim.fn.findfile('*.csproj', vim.fn.getcwd() .. ';'), -- Your project path, auto-detect
-          dir = vim.fn.getcwd(),                                                                -- Run in current working directory
-          hidden = true,                                                                        -- Hide on exit
-          direction = 'float',                                                                  -- Override default if needed
+          dir = vim.fn.getcwd(), -- Run in current working directory
+          hidden = true, -- Hide on exit
+          direction = 'float', -- Override default if needed
           on_exit = function(term, job_id, exit_code)
             if exit_code == 0 then
               vim.notify('.NET server stopped gracefully', vim.log.levels.INFO)
@@ -121,7 +121,7 @@ require('lazy').setup({
   -- Then, because we use the `opts` key (recommended), the configuration runs
   -- after the plugin has been loaded as `require(MODULE).setup(opts)`.
 
-  {                     -- Useful plugin to show you pending keybinds.
+  { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
     event = 'VimEnter', -- Sets the loading event to 'VimEnter'
     opts = {
@@ -167,7 +167,7 @@ require('lazy').setup({
 
       -- Document existing key chains
       spec = {
-        { '<leader>c', group = '[C]ode',               mode = { 'n', 'x' } },
+        { '<leader>c', group = '[C]ode', mode = { 'n', 'x' } },
         { '<leader>b', group = '[B]ash configs' },
         { '<leader>d', group = '[D]ocument' },
         { '<leader>e', group = '[E]slint & formatters' },
@@ -176,7 +176,7 @@ require('lazy').setup({
         { '<leader>s', group = '[S]earch' },
         { '<leader>w', group = '[W]orkspace' },
         { '<leader>t', group = '[T]oggle' },
-        { '<leader>h', group = 'Git [H]unk',           mode = { 'n', 'v' } },
+        { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
       },
     },
   },
@@ -210,7 +210,7 @@ require('lazy').setup({
       { 'nvim-telescope/telescope-ui-select.nvim' },
 
       -- Useful for getting pretty icons, but requires a Nerd Font.
-      { 'nvim-tree/nvim-web-devicons',            enabled = vim.g.have_nerd_font },
+      { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
     },
     config = function()
       -- Telescope is a fuzzy finder that comes with a lot of different things that
@@ -321,7 +321,7 @@ require('lazy').setup({
         ensure_installed = { 'netcoredbg', 'omnisharp' },
       },
       -- Useful status updates for LSP.
-      { 'j-hui/fidget.nvim',       opts = {} },
+      { 'j-hui/fidget.nvim', opts = {} },
 
       -- Allows extra capabilities provided by nvim-cmp
       'hrsh7th/cmp-nvim-lsp',
@@ -538,12 +538,26 @@ require('lazy').setup({
     end,
   },
   {
-    'mfussenegger/nvim-dap',     -- Core DAP plugin
+    'nvim-neotest/nvim-nio',
+    lazy = true,
+  },
+  {
+    'rcarriga/nvim-dap-ui',
+    dependencies = { 'mfussenegger/nvim-dap' },
+    config = function()
+      require('dapui').setup()
+    end,
+  },
+  {
+    'mfussenegger/nvim-dap', -- Core DAP plugin
     dependencies = {
       'williamboman/mason.nvim', -- Ensure Mason is available
+      'mfussenegger/nvim-dap-python', -- Python DAP plugin
     },
     config = function()
+      -- ========================
       -- .NET Core Debugger setup
+      -- ========================
       local dap = require 'dap'
       dap.adapters.coreclr = {
         type = 'executable',
@@ -571,10 +585,41 @@ require('lazy').setup({
           program = function()
             vim.cmd '!dotnet build' -- Force rebuild
             return find_dll_path()
-          end,                      -- Auto-build before Debugging
+          end, -- Auto-build before Debugging
           cwd = '${workspaceFolder}',
         },
       }
+    end,
+  },
+  {
+
+    -- ========================
+    -- Python Debugger setup (new addition)
+    -- ========================
+    -- Get debugpy path from Mason
+    'mfussenegger/nvim-dap-python',
+    ft = 'python', -- Only load for Python files
+    dependencies = { 'mfussenegger/nvim-dap' },
+    config = function()
+      -- Get debugpy path from Mason
+      local debugpy_path = require('mason-registry').get_package('debugpy'):get_install_path()
+
+      -- Setup Python debugging
+      require('dap-python').setup(debugpy_path .. '/venv/bin/python', {
+        -- Optional: Additional configuration
+        include_configs = true, -- Include default configurations
+        python_path = function()
+          -- You can customize Python path detection here if needed
+          local venv_path = os.getenv 'VIRTUAL_ENV'
+          if venv_path then
+            return venv_path .. '/bin/python'
+          end
+          return vim.fn.exepath 'python3' or 'python'
+        end,
+      })
+
+      -- (Optional) Python-specific configurations can be added here
+      -- dap.configurations.python = {...}
     end,
   },
 
