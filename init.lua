@@ -521,20 +521,21 @@ require('lazy').setup({
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
-      require('mason-lspconfig').setup {
-        handlers = {
-          function(server_name)
-            local server = servers[server_name] or {}
-            -- This handles overriding only values explicitly passed
-            -- by the server configuration above. Useful when disabling
-            -- certain features of an LSP (for example, turning off formatting for ts_ls)
-            server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-            require('lspconfig')[server_name].setup(server)
-          end,
-        },
-        ensure_installed = ensure_installed,
-        automatic_installation = true,
-      }
+      -- TODO: Geting error about a call field 'enable' is nil value
+      -- require('mason-lspconfig').setup {
+      --   handlers = {
+      --     function(server_name)
+      --       local server = servers[server_name] or {}
+      --       -- This handles overriding only values explicitly passed
+      --       -- by the server configuration above. Useful when disabling
+      --       -- certain features of an LSP (for example, turning off formatting for ts_ls)
+      --       server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
+      --       require('lspconfig')[server_name].setup(server)
+      --     end,
+      --   },
+      --   ensure_installed = ensure_installed,
+      --   automatic_installation = true,
+      -- }
     end,
   },
   {
@@ -591,37 +592,38 @@ require('lazy').setup({
       }
     end,
   },
-  {
-
-    -- ========================
-    -- Python Debugger setup (new addition)
-    -- ========================
-    -- Get debugpy path from Mason
-    'mfussenegger/nvim-dap-python',
-    ft = 'python', -- Only load for Python files
-    dependencies = { 'mfussenegger/nvim-dap' },
-    config = function()
-      -- Get debugpy path from Mason
-      local debugpy_path = require('mason-registry').get_package('debugpy'):get_install_path()
-
-      -- Setup Python debugging
-      require('dap-python').setup(debugpy_path .. '/venv/bin/python', {
-        -- Optional: Additional configuration
-        include_configs = true, -- Include default configurations
-        python_path = function()
-          -- You can customize Python path detection here if needed
-          local venv_path = os.getenv 'VIRTUAL_ENV'
-          if venv_path then
-            return venv_path .. '/bin/python'
-          end
-          return vim.fn.exepath 'python3' or 'python'
-        end,
-      })
-
-      -- (Optional) Python-specific configurations can be added here
-      -- dap.configurations.python = {...}
-    end,
-  },
+  -- TODO: the .install_path is nil, fix for python debugging
+  -- {
+  --
+  --   -- ========================
+  --   -- Python Debugger setup (new addition)
+  --   -- ========================
+  --   -- Get debugpy path from Mason
+  --   'mfussenegger/nvim-dap-python',
+  --   ft = 'python', -- Only load for Python files
+  --   dependencies = { 'mfussenegger/nvim-dap' },
+  --   config = function()
+  --     -- Get debugpy path from Mason
+  --     local debugpy_path = require('mason-registry').get_package('debugpy').install_path
+  --
+  --     -- Setup Python debugging
+  --     require('dap-python').setup(debugpy_path .. '/venv/bin/python', {
+  --       -- Optional: Additional configuration
+  --       include_configs = true, -- Include default configurations
+  --       python_path = function()
+  --         -- You can customize Python path detection here if needed
+  --         local venv_path = os.getenv 'VIRTUAL_ENV'
+  --         if venv_path then
+  --           return venv_path .. '/bin/python'
+  --         end
+  --         return vim.fn.exepath 'python3' or 'python'
+  --       end,
+  --     })
+  --
+  --     -- (Optional) Python-specific configurations can be added here
+  --     -- dap.configurations.python = {...}
+  --   end,
+  -- },
 
   { -- Autoformat
     'stevearc/conform.nvim',
@@ -873,6 +875,23 @@ require('lazy').setup({
     config = function()
       require('nvim-ts-autotag').setup()
     end,
+  },
+  -- Handles comments that are context-aware comment strings
+  {
+    'numToStr/Comment.nvim',
+    opts = {},
+    lazy = false,
+    config = function()
+      require('Comment').setup {
+        pre_hook = require('ts_context_commentstring.integrations.comment_nvim').create_pre_hook(),
+      }
+    end,
+  },
+  {
+    'JoosepAlviste/nvim-ts-context-commentstring',
+    opts = {
+      enable_autocmd = false,
+    },
   },
   -- Real-time eslinting
   {
